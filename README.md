@@ -2,7 +2,7 @@
 
 This tool automatically downloads all bookmarks from your bookmarks bar folder (Chrome only) as html.
 
-Requires [monolith](https://github.com/Y2Z/monolith) and [Bun](https://bun.sh/) to run.
+Requires [monolith](https://github.com/Y2Z/monolith), [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [Bun](https://bun.sh/) to run.
 
 To run:
 
