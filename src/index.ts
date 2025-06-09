@@ -4,6 +4,7 @@ import { watchFile } from "node:fs";
 import { generateHtml } from "./html"
 import {Item} from "./interfaces";
 import {styleText as sT} from 'node:util'
+import {DOWNLOADS_PATH} from "./constants.ts";
 
 const inputBookmarksFile = process.env.INPUT_BOOKMARKS_FILE || './bookmarks.json';
 const outputFolder = process.env.OUTPUT_FOLDER || './offline';
@@ -11,7 +12,14 @@ const bookmarksFolderName = process.env.BOOKMARKS_FOLDER_NAME || 'offline';
 
 const downloadPage = async (item: Item) => {
     console.log(`Name: ${item.name}, URL: ${item.url}`);
-    await $`monolith -q ${item.url} -o ${outputFolder}/${item.guid}^${item.name}.html`;
+    
+    await $`mkdir -p ${outputFolder}/${DOWNLOADS_PATH}/${item.guid}`;
+
+    if (item.url.includes('youtube.com') || item.url.includes('youtu.be')) {
+        await $`yt-dlp ${item.url} -o ${outputFolder}/${DOWNLOADS_PATH}/${item.guid}/${item.name}.mp4`;
+    } else {
+        await $`monolith -q ${item.url} -o ${outputFolder}/${DOWNLOADS_PATH}/${item.guid}/${item.name}.html`;
+    }
 }
 
 const getBookmarksFromJson = async () => {
@@ -20,10 +28,9 @@ const getBookmarksFromJson = async () => {
 }
 
 const processBookmarks = async () => {
+    await $`mkdir -p ${outputFolder}/${DOWNLOADS_PATH}`;
     const bookmarks: Item[] = await getBookmarksFromJson();
-    const alreadyDownloaded = (await readdir(outputFolder))
-        .filter(i => i !== 'index.html' && i.endsWith('.html'))
-        .map(item => item.split('^')[0]);
+    const alreadyDownloaded = (await readdir(`${outputFolder}/${DOWNLOADS_PATH}`))
 
     const errorMessages: string[] = [];
 
@@ -33,7 +40,7 @@ const processBookmarks = async () => {
         console.log(sT('gray', `Found ${deleted.length} deleted bookmarks: ${deleted}`));
         await Promise.all(deleted.map(async (item) => {
             try {
-                await $`rm ${outputFolder}/${item}^*.html`;
+                await $`rm -R ${outputFolder}/${DOWNLOADS_PATH}/${item}`;
                 console.log(sT('red', `Deleted: ${item}`));
             } catch (err) {
                 errorMessages.push(`Error deleting ${item}: ${err}`);

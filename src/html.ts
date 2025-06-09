@@ -1,7 +1,19 @@
 import { readdir } from "node:fs/promises";
+import {DOWNLOADS_PATH} from './constants.ts';
 
 export const generateHtml = async (outputFolder: string, errorMessages: string[]) => {
-    const offlineFolderItems = await readdir(outputFolder);
+    const offlineFolderItems = await readdir(`${outputFolder}/${DOWNLOADS_PATH}`);
+
+    let files: string[][] = [];
+    for (const item of offlineFolderItems) {
+        const filesInItem = await readdir(`${outputFolder}/${DOWNLOADS_PATH}/${item}`);
+        filesInItem.forEach(file => {
+            const url = `${DOWNLOADS_PATH}/${item}/${file}`;
+            const extension = url.split('.').pop()?.toLowerCase();
+            const name = file.replace(`.${extension}`, '');
+            files.push([url, name]);
+        });
+    }
 
     const lastUpdated = new Date().toLocaleString();
     
@@ -25,21 +37,16 @@ export const generateHtml = async (outputFolder: string, errorMessages: string[]
     <body>
     <h1>Offline Bookmarks</h1>
     <ul>
-        ${offlineFolderItems.map(item => {
-            const fileName = item.replace('.html', '');
-            const [guid, name] = fileName.split('^');
-
-            if (guid && name) {
+        ${files.map(([url, name]) => {
                 return `<li>
                     <a
                         target="_blank"
-                        href="./${fileName}.html"
+                        href="./${url}"
                         target="_blank"
                     >
                         ${name}
                     </a>
                 </li>`;
-            }
         }).join('')}
     </ul>
     </body>
