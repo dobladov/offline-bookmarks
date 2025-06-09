@@ -4,7 +4,7 @@ import { watchFile } from "node:fs";
 import { generateHtml } from "./html"
 import {Item} from "./interfaces";
 import {styleText as sT} from 'node:util'
-import {DOWNLOADS_PATH} from "./constants.ts";
+import {DOWNLOADS_PATH} from "./constants";
 
 const inputBookmarksFile = process.env.INPUT_BOOKMARKS_FILE || './bookmarks.json';
 const outputFolder = process.env.OUTPUT_FOLDER || './offline';

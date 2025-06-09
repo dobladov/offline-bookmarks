@@ -1,5 +1,5 @@
 import { readdir } from "node:fs/promises";
-import {DOWNLOADS_PATH} from './constants.ts';
+import {DOWNLOADS_PATH} from './constants';
 
 export const generateHtml = async (outputFolder: string, errorMessages: string[]) => {
     const offlineFolderItems = await readdir(`${outputFolder}/${DOWNLOADS_PATH}`);
